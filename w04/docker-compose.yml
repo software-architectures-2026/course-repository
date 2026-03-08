@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: eventhub_db
+    environment:
+      POSTGRES_DB: eventhub
+      POSTGRES_USER: eventhub_user
+      POSTGRES_PASSWORD: eventhub_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d

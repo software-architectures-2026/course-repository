@@ -1,0 +1,19 @@
+<section class="events-list">
+	<h2>Upcoming Events</h2>
+
+	<ng-container *ngIf="events$ | async as items; else loadingOrError">
+		<p *ngIf="items.length === 0">No events available.</p>
+		<ul *ngIf="items.length > 0">
+				<li *ngFor="let e of items">
+					<a [routerLink]="[e.event_id]">
+						<strong>{{ e.title }}</strong>
+					</a>
+					 — {{ e.location }} — {{ e.start_time | date:'short' }}
+				</li>
+		</ul>
+	</ng-container>
+
+	<ng-template #loadingOrError>
+		<p>Loading…</p>
+	</ng-template>
+</section>

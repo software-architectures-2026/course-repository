@@ -1,0 +1,20 @@
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" routerLink="/">EventHub</a>
+    <ul class="nav-list">
+      <li><a routerLink="/events">Events</a></li>
+      <li><a routerLink="/tickets">Tickets</a></li>
+      <li><a routerLink="/reservations">Reservations</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <ng-container *ngIf="user$ | async as user; else showLogin">
+        <span class="user">{{ user?.full_name || user?.email }}</span>
+        <button class="btn" (click)="logout()">Logout</button>
+      </ng-container>
+      <ng-template #showLogin>
+        <a class="btn" routerLink="/auth/login">Login</a>
+      </ng-template>
+    </div>
+  </nav>
+</header>

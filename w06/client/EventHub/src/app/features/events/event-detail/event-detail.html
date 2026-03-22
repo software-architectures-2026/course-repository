@@ -1,0 +1,49 @@
+<section class="event-detail">
+	<ng-container *ngIf="event$ | async as event; else loadingTpl">
+		<div *ngIf="error" class="error">{{ error }}</div>
+		<div *ngIf="event">
+			<h2>{{ event.title }}</h2>
+			<p>{{ event.location }} — {{ event.start_time | date:'short' }}</p>
+			<p *ngIf="event.description">{{ event.description }}</p>
+
+			<h3>Tickets</h3>
+			<div class="ticket-list">
+				<ng-container *ngIf="ticketTypes$ | async as types">
+					<label *ngFor="let t of types; let i = index" class="ticket-row">
+						<input type="radio" name="ticket" [value]="t.id" [checked]="selectedTicketTypeId === t.id || (!selectedTicketTypeId && i === 0)" (change)="selectedTicketTypeId = t.id" />
+						<span class="ticket-name">{{ t.name }}</span>
+						<span class="ticket-price">{{ t.price | currency }}</span>
+					</label>
+				</ng-container>
+			</div>
+
+			<div class="buy-controls">
+					<label>Quantity
+						<input type="number" min="1" [(ngModel)]="quantity" />
+					</label>
+					<label>Seat (optional)
+						<input type="text" placeholder="e.g. A12" [(ngModel)]="selectedSeat" />
+					</label>
+					<div *ngIf="!isAuthenticated()" class="buyer-info">
+						<label>Your name
+							<input type="text" placeholder="Full name" [(ngModel)]="buyerName" />
+						</label>
+						<label>Your email
+							<input type="email" placeholder="you@example.com" [(ngModel)]="buyerEmail" />
+						</label>
+					</div>
+					<label>Payment method
+						<select [(ngModel)]="paymentMethod">
+							<option value="card">Card</option>
+							<option value="invoice">Invoice</option>
+						</select>
+					</label>
+					<button (click)="addToCart(event)">Add to cart</button>
+			</div>
+		</div>
+	</ng-container>
+
+	<ng-template #loadingTpl>
+		<p>Loading event…</p>
+	</ng-template>
+</section>

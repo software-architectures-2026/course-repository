@@ -1,20 +1,27 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Auth } from './auth';
+import { HttpInterceptorFn } from '@angular/common/http';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AppHttpInterceptor implements HttpInterceptor {
-  constructor(private auth: Auth) {}
+const TOKEN_KEY = 'eventhub_token';
+const EXPIRES_KEY = 'eventhub_token_expires';
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.auth.getToken();
-    if (token) {
-      const cloned = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
-      return next.handle(cloned);
-    }
-    return next.handle(req);
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) {
+    return next(req);
   }
-}
+
+  // Check if token has expired
+  const expRaw = localStorage.getItem(EXPIRES_KEY);
+  if (expRaw) {
+    const exp = parseInt(expRaw, 10) || 0;
+    if (Date.now() >= exp) {
+      // Token expired — don't attach it, let the request go without auth
+      return next(req);
+    }
+  }
+
+  // Attach the valid token
+  const cloned = req.clone({
+    setHeaders: { Authorization: `Bearer ${token}` }
+  });
+  return next(cloned);
+};

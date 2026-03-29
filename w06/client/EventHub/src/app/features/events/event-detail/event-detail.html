@@ -10,9 +10,10 @@
 			<div class="ticket-list">
 				<ng-container *ngIf="ticketTypes$ | async as types">
 					<label *ngFor="let t of types; let i = index" class="ticket-row">
-						<input type="radio" name="ticket" [value]="t.id" [checked]="selectedTicketTypeId === t.id || (!selectedTicketTypeId && i === 0)" (change)="selectedTicketTypeId = t.id" />
+						<input type="radio" name="ticket" [value]="t.ticket_type_id" [checked]="selectedTicketTypeId === t.ticket_type_id || (!selectedTicketTypeId && i === 0)" (change)="selectedTicketTypeId = t.ticket_type_id" />
 						<span class="ticket-name">{{ t.name }}</span>
 						<span class="ticket-price">{{ t.price | currency }}</span>
+						<span class="ticket-qty">({{ t.quantity }} available)</span>
 					</label>
 				</ng-container>
 			</div>

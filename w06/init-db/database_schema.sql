@@ -190,8 +190,6 @@ CREATE UNIQUE INDEX unique_seat_event_active ON ticket_reservations (event_id, s
 -- Demo Data
 
 -- Users
--- Demo users: passwords are hashed using bcrypt via pgcrypto's crypt()/gen_salt('bf')
--- Demo plaintext passwords: alice@example.com -> 'alicepass', bob@example.com -> 'bobpass', carol@example.com -> 'carolpass'
 INSERT INTO users (user_id, email, password_hash, full_name, status, created_at, updated_at)
 VALUES
     (gen_random_uuid(), 'alice@example.com', crypt('alicepass', gen_salt('bf')), 'Alice Smith', 'active', NOW(), NOW()),
@@ -251,3 +249,93 @@ INSERT INTO sales_data (sales_data_id, event_id, total_tickets_sold, total_reven
 SELECT gen_random_uuid(), event_id, 1, 15000, NOW(), '{}', NOW(), NOW() FROM events WHERE title = 'Spring Concert';
 INSERT INTO sales_data (sales_data_id, event_id, total_tickets_sold, total_revenue, last_updated, metadata, created_at, updated_at)
 SELECT gen_random_uuid(), event_id, 0, 0, NOW(), '{}', NOW(), NOW() FROM events WHERE title = 'Tech Meetup';
+
+-- Additional Demo Events and Ticket Types
+-- 8 new events across categories: sport, art, food, business, music, technology
+
+-- 1) Summer Sports Day (sport, Győr) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Summer Sports Day', 'A family-friendly day of outdoor sports and activities.', 'sport', 'Győr', NOW() + INTERVAL '3 days', NOW() + INTERVAL '3 days' + INTERVAL '6 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 2) Open Art Exhibition (art, Pécs) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Open Art Exhibition', 'Local artists showcase: paintings, sculptures and installations.', 'art', 'Pécs', NOW() + INTERVAL '10 days', NOW() + INTERVAL '10 days' + INTERVAL '8 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 3) Gourmet Food Fair (food, Szeged) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Gourmet Food Fair', 'Taste dishes from top local chefs and street-food vendors.', 'food', 'Szeged', NOW() + INTERVAL '20 days', NOW() + INTERVAL '20 days' + INTERVAL '10 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 4) Business Leadership Summit (business, Budapest) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Business Leadership Summit', 'Keynotes and panels for executives and founders.', 'business', 'Budapest', NOW() + INTERVAL '30 days', NOW() + INTERVAL '30 days' + INTERVAL '8 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 5) Indie Music Night (music, Debrecen) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Indie Music Night', 'Emerging bands and acoustic sets for music lovers.', 'music', 'Debrecen', NOW() + INTERVAL '45 days', NOW() + INTERVAL '45 days' + INTERVAL '4 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 6) Tech Startup Pitch (technology, Budapest) - published
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Tech Startup Pitch', 'Startups pitch to investors and mentors.', 'technology', 'Budapest', NOW() + INTERVAL '60 days', NOW() + INTERVAL '60 days' + INTERVAL '6 hours', TRUE, TRUE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 7) City Marathon (sport, Pécs) - unpublished (draft)
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'City Marathon', 'Annual city marathon with multiple distance options.', 'sport', 'Pécs', NOW() + INTERVAL '75 days', NOW() + INTERVAL '75 days' + INTERVAL '5 hours', TRUE, FALSE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- 8) Street Food Popup (food, Győr) - unpublished (draft)
+INSERT INTO events (event_id, organizer_id, title, description, category, location, start_time, end_time, visibility, published, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), user_id, 'Street Food Popup', 'A weekend popup featuring street-food concepts and live DJs.', 'food', 'Győr', NOW() + INTERVAL '90 days', NOW() + INTERVAL '90 days' + INTERVAL '10 hours', TRUE, FALSE, '{}', NOW(), NOW() FROM users WHERE email = 'alice@example.com';
+
+-- Ticket Types for new events (2-3 types per event)
+
+-- Summer Sports Day ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'General', 2500, 200, '{}', NOW(), NOW() FROM events WHERE title = 'Summer Sports Day';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'VIP', 12000, 20, '{}', NOW(), NOW() FROM events WHERE title = 'Summer Sports Day';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Student', 1500, 100, '{}', NOW(), NOW() FROM events WHERE title = 'Summer Sports Day';
+
+-- Open Art Exhibition ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'General', 2000, 150, '{}', NOW(), NOW() FROM events WHERE title = 'Open Art Exhibition';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Opening Night VIP', 8000, 30, '{}', NOW(), NOW() FROM events WHERE title = 'Open Art Exhibition';
+
+-- Gourmet Food Fair ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Standard', 3000, 200, '{}', NOW(), NOW() FROM events WHERE title = 'Gourmet Food Fair';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Chef Tasting', 15000, 50, '{}', NOW(), NOW() FROM events WHERE title = 'Gourmet Food Fair';
+
+-- Business Leadership Summit ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Early Bird', 9000, 100, '{}', NOW(), NOW() FROM events WHERE title = 'Business Leadership Summit';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'General', 15000, 200, '{}', NOW(), NOW() FROM events WHERE title = 'Business Leadership Summit';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Corporate Table', 50000, 5, '{}', NOW(), NOW() FROM events WHERE title = 'Business Leadership Summit';
+
+-- Indie Music Night ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'General', 4000, 180, '{}', NOW(), NOW() FROM events WHERE title = 'Indie Music Night';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'VIP', 10000, 40, '{}', NOW(), NOW() FROM events WHERE title = 'Indie Music Night';
+
+-- Tech Startup Pitch ticket types
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Startup Pass', 1500, 300, '{}', NOW(), NOW() FROM events WHERE title = 'Tech Startup Pitch';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Investor VIP', 20000, 25, '{}', NOW(), NOW() FROM events WHERE title = 'Tech Startup Pitch';
+
+-- City Marathon ticket types (unpublished event)
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Full Marathon', 5000, 1000, '{}', NOW(), NOW() FROM events WHERE title = 'City Marathon';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Half Marathon', 3000, 1500, '{}', NOW(), NOW() FROM events WHERE title = 'City Marathon';
+
+-- Street Food Popup ticket types (unpublished event)
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'Tasting Pass', 1500, 500, '{}', NOW(), NOW() FROM events WHERE title = 'Street Food Popup';
+INSERT INTO ticket_types (ticket_type_id, event_id, name, price, quantity, metadata, created_at, updated_at)
+SELECT gen_random_uuid(), event_id, 'All-Day VIP', 8000, 50, '{}', NOW(), NOW() FROM events WHERE title = 'Street Food Popup';
+

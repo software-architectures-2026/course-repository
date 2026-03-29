@@ -1,1 +1,15 @@
+<section class="ticket-detail">
+  <div *ngIf="loading">Loading ticket…</div>
+  <div *ngIf="!loading && ticket" class="card">
+    <h2><a [routerLink]="['/events', ticketType?.event_id]">{{ eventTitle }}</a></h2>
+    <p class="meta">{{ ticketType?.name }} — {{ ticketType?.price | currency }}</p>
+    <p *ngIf="ticket.seat">Seat: {{ ticket.seat }}</p>
+    <p>Status: <span class="status" [ngClass]="ticket.status">{{ ticket.status }}</span></p>
+    <p *ngIf="ticket.issued_at">Issued: {{ ticket.issued_at | date:'medium' }}</p>
+    <p>Reservation: {{ ticket.reservation_id }}</p>
+    <p>Ticket ID: <strong>{{ ticket.ticket_id }}</strong></p>
+    <a routerLink="/tickets">Back to My Tickets</a>
+  </div>
+  <div *ngIf="!loading && !ticket">Ticket not found.</div>
+</section>
 <p>ticket-detail works!</p>

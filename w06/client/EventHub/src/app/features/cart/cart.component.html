@@ -1,7 +1,8 @@
 <section class="cart">
   <h2>Your cart</h2>
   <div *ngIf="items.length === 0">Your cart is empty.</div>
-    <ul *ngIf="items.length > 0">
+
+  <ul *ngIf="items.length > 0 && status !== 'processing'">
     <li *ngFor="let it of items; let i = index">
       <div class="cart-item-main">
         <strong>{{ it.eventTitle }}</strong> — {{ it.ticketTypeName }} x {{ it.quantity }} — {{ it.price | currency }} ea
@@ -14,8 +15,29 @@
       <button (click)="remove(i)">Remove</button>
     </li>
   </ul>
-  <div *ngIf="items.length > 0">
+
+  <div *ngIf="items.length > 0 && status === 'idle'">
     <p>Total: {{ total() | currency }}</p>
     <button (click)="checkout()">Checkout</button>
+  </div>
+
+  <div *ngIf="status === 'processing'" class="checkout-processing">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>{{ progressMessage }}</p>
+  </div>
+
+  <div *ngIf="status === 'success'" class="checkout-success">
+    <h3>Purchase complete!</h3>
+    <p>You have purchased {{ purchasedTickets.length }} ticket(s).</p>
+    <ul>
+      <li *ngFor="let t of purchasedTickets">{{ t }}</li>
+    </ul>
+    <a routerLink="/tickets" class="btn-link">My Tickets</a>
+  </div>
+
+  <div *ngIf="status === 'error'" class="checkout-error">
+    <h3>Checkout failed</h3>
+    <p>{{ errorMessage }}</p>
+    <button (click)="checkout()">Try again</button>
   </div>
 </section>

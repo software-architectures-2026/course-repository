@@ -73,7 +73,7 @@ export class Auth {
         if (resp && resp.token) {
           localStorage.setItem(this.TOKEN_KEY, resp.token);
           // store expiry as epoch ms
-          const expiresSec = parseInt(String(resp.expires_in || '0'), 10) || 0;
+          const expiresSec = this.parseExpiresIn(resp.expires_in);
           const expiresAt = Date.now() + expiresSec * 1000;
           localStorage.setItem(this.EXPIRES_KEY, String(expiresAt));
           localStorage.setItem(this.USER_KEY, JSON.stringify(resp.user || null));
@@ -124,5 +124,22 @@ export class Auth {
     } catch {
       return null;
     }
+  }
+
+  private parseExpiresIn(value: string | number): number {
+    if (typeof value === 'number' && !isNaN(value)) return value;
+    const str = String(value).trim();
+    const asNum = Number(str);
+    if (!isNaN(asNum) && str === String(asNum)) return asNum;
+    const match = str.match(/^(\d+)\s*(s|m|h|d)$/i);
+    if (match) {
+      const n = parseInt(match[1], 10);
+      const unit = match[2].toLowerCase();
+      if (unit === 's') return n;
+      if (unit === 'm') return n * 60;
+      if (unit === 'h') return n * 3600;
+      if (unit === 'd') return n * 86400;
+    }
+    return 3600;
   }
 }

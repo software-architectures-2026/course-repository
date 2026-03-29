@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, EventDto } from '../event.service';
+import { TicketTypeService, TicketTypeDto } from '../ticket-type.service';
+import { Observable, of } from 'rxjs';
 import { CartService } from '../../../core/cart';
 import { Auth } from '../../../core/auth';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-event-detail',
@@ -26,11 +27,13 @@ export class EventDetail {
   buyerName: string | null = null;
   buyerEmail: string | null = null;
   paymentMethod: string = 'card';
+  private loadedTicketTypes: TicketTypeDto[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private svc: EventService,
+    private ticketTypeService: TicketTypeService,
     private cart: CartService,
     private auth: Auth
   ) {
@@ -41,39 +44,33 @@ export class EventDetail {
       return;
     }
     this.event$ = this.svc.getEvent(id).pipe(catchError((_) => of(null)));
-    // derive ticket types observable from event
-    this.ticketTypes$ = this.event$.pipe(map((e) => this._ticketTypesFromEvent(e)));
+    // derive ticket types observable from API and cache results
+    this.ticketTypes$ = this.ticketTypeService.listByEvent(id).pipe(
+      tap((types) => (this.loadedTicketTypes = types)),
+      catchError(() => of([] as TicketTypeDto[]))
+    );
   }
 
-  ticketTypes$!: Observable<{ id: string; name: string; price: number }[]>;
-
-  private _ticketTypesFromEvent(event?: EventDto | null): { id: string; name: string; price: number }[] {
-    const meta: any = (event && event.metadata) || {};
-    if (Array.isArray(meta.ticketTypes) && meta.ticketTypes.length > 0) {
-      return meta.ticketTypes.map((t: any) => ({ id: String(t.id), name: t.name, price: Number(t.price || 0) }));
-    }
-    return [
-      { id: 'general', name: 'General Admission', price: 10 },
-      { id: 'vip', name: 'VIP', price: 30 },
-    ];
-  }
+  ticketTypes$!: Observable<TicketTypeDto[]>;
 
   addToCart(event?: EventDto | null) {
     if (!event) return;
-    const types = this._ticketTypesFromEvent(event);
-    const t = types.find((x: { id: string; name: string; price: number }) => x.id === this.selectedTicketTypeId) || types[0];
+    const types = this.loadedTicketTypes;
+    const t = types.find((x) => x.ticket_type_id === this.selectedTicketTypeId) || types[0];
+    if (!t) return;
+
     this.cart.add({
       eventId: event.event_id,
       eventTitle: event.title,
-      ticketTypeId: t.id,
+      ticketTypeId: t.ticket_type_id,
       ticketTypeName: t.name,
-      price: t.price,
+      price: Number(t.price || 0),
       quantity: this.quantity || 1,
       seat: this.selectedSeat || null,
       buyerName: this.buyerName || null,
       buyerEmail: this.buyerEmail || null,
     });
-    // navigate to cart or show a toast — for now navigate to /cart (not implemented yet)
+
     this.router.navigate(['/cart']);
   }
 

@@ -1,1 +1,22 @@
+<section class="tickets">
+  <h2>My Tickets</h2>
+
+  <p *ngIf="loading">Loading tickets...</p>
+  <p *ngIf="!loading && items.length === 0">You don't have any tickets yet. <a routerLink="/events">Browse events</a></p>
+
+  <div class="grid" *ngIf="items.length > 0">
+    <article class="ticket-card" *ngFor="let it of items">
+      <h3><a [routerLink]="['/events', it.eventId]">{{ it.eventTitle }}</a></h3>
+      <div class="ticket-meta">
+        <div class="type">{{ it.ticketTypeName }} — {{ it.price | currency }}</div>
+        <div class="seat" *ngIf="it.ticket.seat">Seat: {{ it.ticket.seat }}</div>
+      </div>
+      <div class="ticket-footer">
+        <span class="status" [ngClass]="it.ticket.status">{{ it.ticket.status }}</span>
+        <span class="issued" *ngIf="it.ticket.issued_at">{{ it.ticket.issued_at | date:'medium' }}</span>
+        <a [routerLink]="['/tickets', it.ticket.ticket_id]" class="details">View details</a>
+      </div>
+    </article>
+  </div>
+</section>
 <p>ticket-list works!</p>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature-to-Architecture Grid</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 2em; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 2em; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 0.7em; text-align: left; }
+    th { background: #2980b9; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
+    .tree { font-family: monospace; background: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .justification { margin-top: 2em; background: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  </style>
+</head>
+<body>
+  <h1>Feature-to-Architecture Grid</h1>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>Browse Events</th>
+      <th>Filter Events</th>
+      <th>Select Tickets</th>
+      <th>Complete Purchase</th>
+      <th>Create Event</th>
+      <th>Publish Event</th>
+      <th>View Real-time Sales Data</th>
+      <th>Cancel Booking</th>
+      <th>Get Refund</th>
+      <th>Manage Users</th>
+      <th>Manage Roles</th>
+    </tr>
+    <tr>
+      <td>UI (Angular)</td>
+      <td>EventListComponent</td>
+      <td>EventFilterComponent</td>
+      <td>TicketSelectionComponent</td>
+      <td>PurchaseComponent</td>
+      <td>EventFormComponent</td>
+      <td>EventPublishComponent</td>
+      <td>SalesDashboardComponent</td>
+      <td>BookingCancelComponent</td>
+      <td>RefundComponent</td>
+      <td>UserManagementComponent</td>
+      <td>RoleManagementComponent</td>
+    </tr>
+    <tr>
+      <td>API-Routes (Node.js)</td>
+      <td>/api/events</td>
+      <td>/api/events/filter</td>
+      <td>/api/tickets/select</td>
+      <td>/api/purchase</td>
+      <td>/api/events/create</td>
+      <td>/api/events/publish</td>
+      <td>/api/sales/dashboard</td>
+      <td>/api/booking/cancel</td>
+      <td>/api/refund</td>
+      <td>/api/users</td>
+      <td>/api/roles</td>
+    </tr>
+    <tr>
+      <td>Business Logic (Node.js)</td>
+      <td>eventService</td>
+      <td>filterService</td>
+      <td>ticketService</td>
+      <td>purchaseService</td>
+      <td>eventService</td>
+      <td>eventService</td>
+      <td>salesService</td>
+      <td>bookingService</td>
+      <td>refundService</td>
+      <td>userService</td>
+      <td>roleService</td>
+    </tr>
+    <tr>
+      <td>Data Access (PostgreSQL)</td>
+      <td>events table</td>
+      <td>events table</td>
+      <td>tickets table</td>
+      <td>payments, tickets table</td>
+      <td>events table</td>
+      <td>events table</td>
+      <td>sales table</td>
+      <td>bookings table</td>
+      <td>refunds table</td>
+      <td>users table</td>
+      <td>roles table</td>
+    </tr>
+  </table>
+
+  <h2>Recommended Folder Structure</h2>
+  <div class="tree">
+features/
+├── browse-events/
+│   ├── ui/
+│   │   └── EventListComponent.ts
+│   ├── logic/
+│   │   └── eventService.ts
+│   ├── data/
+│   │   └── eventsRepository.ts
+├── filter-events/
+│   ├── ui/
+│   │   └── EventFilterComponent.ts
+│   ├── logic/
+│   │   └── filterService.ts
+│   ├── data/
+│   │   └── eventsRepository.ts
+├── select-tickets/
+│   ├── ui/
+│   │   └── TicketSelectionComponent.ts
+│   ├── logic/
+│   │   └── ticketService.ts
+│   ├── data/
+│   │   └── ticketsRepository.ts
+├── complete-purchase/
+│   ├── ui/
+│   │   └── PurchaseComponent.ts
+│   ├── logic/
+│   │   └── purchaseService.ts
+│   ├── data/
+│   │   └── paymentsRepository.ts
+├── create-event/
+│   ├── ui/
+│   │   └── EventFormComponent.ts
+│   ├── logic/
+│   │   └── eventService.ts
+│   ├── data/
+│   │   └── eventsRepository.ts
+├── publish-event/
+│   ├── ui/
+│   │   └── EventPublishComponent.ts
+│   ├── logic/
+│   │   └── eventService.ts
+│   ├── data/
+│   │   └── eventsRepository.ts
+├── view-sales/
+│   ├── ui/
+│   │   └── SalesDashboardComponent.ts
+│   ├── logic/
+│   │   └── salesService.ts
+│   ├── data/
+│   │   └── salesRepository.ts
+├── cancel-booking/
+│   ├── ui/
+│   │   └── BookingCancelComponent.ts
+│   ├── logic/
+│   │   └── bookingService.ts
+│   ├── data/
+│   │   └── bookingsRepository.ts
+├── get-refund/
+│   ├── ui/
+│   │   └── RefundComponent.ts
+│   ├── logic/
+│   │   └── refundService.ts
+│   ├── data/
+│   │   └── refundsRepository.ts
+├── manage-users/
+│   ├── ui/
+│   │   └── UserManagementComponent.ts
+│   ├── logic/
+│   │   └── userService.ts
+│   ├── data/
+│   │   └── usersRepository.ts
+├── manage-roles/
+│   ├── ui/
+│   │   └── RoleManagementComponent.ts
+│   ├── logic/
+│   │   └── roleService.ts
+│   ├── data/
+│   │   └── rolesRepository.ts
+  </div>
+
+  <div class="justification">
+    <h2>Justification</h2>
+    <p>
+      Given the moderate number of features and the solo developer context, a <strong>feature-first</strong> folder structure is recommended. This approach allows for clear separation of concerns, easier navigation, and more maintainable code as each feature is encapsulated with its UI, logic, and data access. Angular and Node.js both support modular development, and PostgreSQL fits well with repository-based data access. Features are likely to change independently, and a feature-first structure minimizes cross-feature coupling and simplifies refactoring. For a university project, this structure is easier to scale and reason about, and aligns with modern best practices for full-stack development. Layer-first is more suitable for large teams or highly reusable shared logic, which is not the case here.
+    </p>
+  </div>
+</body>
+</html>

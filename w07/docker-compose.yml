@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: eventhub_db
+    environment:
+      POSTGRES_DB: eventhub
+      POSTGRES_USER: eventhub_user
+      POSTGRES_PASSWORD: eventhub_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+  app:
+    image: node:24
+    container_name: eventhub_app
+    working_dir: /usr/src/app
+    volumes:
+      - ./server:/usr/src/app:delegated
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://eventhub_user:eventhub_pass@db:5432/eventhub
+      - JWT_SECRET=change_me
+    depends_on:
+      - db
+    command: sh -c "npm install && npm run dev"
+    restart: unless-stopped
+  client:
+    image: node:24
+    container_name: eventhub_client
+    working_dir: /usr/src/client
+    volumes:
+      - ./client/EventHub:/usr/src/client:delegated
+      - /usr/src/client/node_modules
+    ports:
+      - "4200:4200"
+    environment:
+      - PORT=4200
+    depends_on:
+      - app
+    command: sh -c "npm install && npm run start -- --host 0.0.0.0"
+    restart: unless-stopped

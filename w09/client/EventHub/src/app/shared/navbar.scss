@@ -1,0 +1,8 @@
+.site-header { background: var(--sys-surface, #fff); border-bottom: 1px solid #eee; }
+.nav { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.5rem 1rem; }
+.nav-brand { font-weight:700; text-decoration:none; color:inherit; }
+.nav-list { display:flex; gap:0.75rem; list-style:none; margin:0; padding:0; }
+.nav-list a { text-decoration:none; color:inherit; }
+.nav-actions { display:flex; gap:0.5rem; align-items:center; }
+.btn { padding:0.35rem 0.6rem; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer; }
+.user { font-size:0.95rem; color:#333; }

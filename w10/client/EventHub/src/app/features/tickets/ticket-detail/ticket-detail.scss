@@ -1,0 +1,18 @@
+.ticket-detail {
+  display: flex;
+  justify-content: center;
+  padding: var(--sys-space-4);
+
+  .card {
+    max-width: 600px;
+    width: 100%;
+    background: var(--sys-color-surface);
+    padding: var(--sys-space-4);
+    border-radius: var(--sys-radius-md);
+    box-shadow: var(--sys-shadow-sm);
+  }
+
+  .status.issued { color: var(--sys-color-success); }
+  .status.reserved { color: var(--sys-color-warning); }
+  .status.cancelled { color: var(--sys-color-danger); }
+}

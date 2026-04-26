@@ -1,0 +1,36 @@
+.tickets {
+  padding: var(--sys-space-4);
+
+  h2 { margin-top: 0; }
+
+  .grid {
+    display: grid;
+    gap: var(--sys-space-3);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 720px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1100px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .ticket-card {
+    background: var(--sys-color-surface);
+    padding: var(--sys-space-3);
+    border-radius: var(--sys-radius-md);
+    box-shadow: var(--sys-shadow-sm);
+
+    h3 { margin: 0 0 var(--sys-space-2) 0; }
+
+    .ticket-meta { color: var(--sys-color-muted); margin-bottom: var(--sys-space-2); }
+
+    .ticket-footer { display:flex; align-items:center; gap:var(--sys-space-2); justify-content:space-between; }
+
+    .status { padding: 0.25rem 0.5rem; border-radius: var(--sys-radius-md); color: white; text-transform: capitalize; }
+    .status.issued { background: var(--sys-color-success); }
+    .status.reserved { background: color-mix(in srgb, var(--sys-color-warning) 80%, var(--sys-color-surface) 20%); }
+    .status.cancelled { background: var(--sys-color-danger); }
+  }
+}

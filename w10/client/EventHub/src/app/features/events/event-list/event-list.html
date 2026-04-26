@@ -1,0 +1,97 @@
+<section class="events-list">
+	<h2>Upcoming Events</h2>
+
+	<details class="filter-panel" open>
+		<summary>Filters</summary>
+		<form class="filters" (submit)="$event.preventDefault(); onFilter()">
+			<div class="row">
+				<div class="field">
+					<input
+						type="text"
+						name="q"
+						[(ngModel)]="filters.q"
+						(ngModelChange)="onSearchChange($event)"
+						placeholder="Search events..."
+						aria-label="Search events"
+					/>
+				</div>
+
+				<div class="field">
+					<select name="category" [(ngModel)]="filters.category">
+						<option value="">All</option>
+						<option value="music">Music</option>
+						<option value="technology">Technology</option>
+						<option value="sport">Sport</option>
+						<option value="art">Art</option>
+						<option value="food">Food</option>
+						<option value="business">Business</option>
+					</select>
+				</div>
+
+				<div class="field">
+					<select name="location" [(ngModel)]="filters.location">
+						<option value="">All</option>
+						<option>Budapest</option>
+						<option>Debrecen</option>
+						<option>Szeged</option>
+						<option>Pécs</option>
+						<option>Győr</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="field date">
+					<label>From</label>
+					<input type="date" name="start_from" [(ngModel)]="filters.start_from" />
+				</div>
+				<div class="field date">
+					<label>To</label>
+					<input type="date" name="start_to" [(ngModel)]="filters.start_to" />
+				</div>
+
+				<div class="field">
+					<select name="sort" [(ngModel)]="filters.sort">
+						<option value="start_time">Date (soonest first)</option>
+						<option value="-start_time">Date (latest first)</option>
+						<option value="title">Name A-Z</option>
+						<option value="-title">Name Z-A</option>
+					</select>
+				</div>
+
+				<div class="actions">
+					<button type="button" class="btn primary" (click)="onFilter()">Filter</button>
+					<button type="button" class="btn" (click)="onReset()">Reset</button>
+				</div>
+			</div>
+		</form>
+	</details>
+
+	<ng-container *ngIf="loading$ | async as loading">
+		<p *ngIf="loading" class="loading">Loading events...</p>
+	</ng-container>
+
+	<ng-container *ngIf="(events$ | async) as items">
+		<p *ngIf="!items || items.length === 0" class="empty">No events found matching your filters.</p>
+
+		<div class="grid" *ngIf="items && items.length > 0">
+			<article class="event-card" *ngFor="let e of items; trackBy: trackById">
+				<a class="card-link" [routerLink]="['/events', e.event_id]">
+					<div class="card-body">
+						<div class="card-header">
+							<h3>{{ e.title }}</h3>
+							<span class="badge" [ngClass]="e.category">{{ e.category }}</span>
+						</div>
+
+						<div class="meta">
+							<span class="location">{{ e.location }}</span>
+							<span class="date">{{ e.start ? (e.start | date:'medium') : (e.start_time | date:'medium') }}</span>
+						</div>
+
+						<p class="desc">{{ e.description }}</p>
+					</div>
+				</a>
+			</article>
+		</div>
+	</ng-container>
+</section>

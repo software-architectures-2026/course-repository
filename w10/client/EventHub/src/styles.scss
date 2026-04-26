@@ -1,0 +1,20 @@
+/* Global styles and design tokens */
+@import './styles/tokens.scss';
+
+html, body {
+	font-family: var(--sys-font-family);
+	background: var(--sys-color-background);
+	color: var(--sys-color-text);
+}
+
+a {
+	color: var(--sys-color-primary);
+}
+
+/* small utility that demonstrates token usage */
+.card {
+	background: var(--sys-color-surface);
+	border-radius: var(--sys-radius-md);
+	box-shadow: var(--sys-shadow-sm);
+	padding: var(--sys-space-4);
+}

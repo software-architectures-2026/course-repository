@@ -1,0 +1,1503 @@
+openapi: 3.0.3
+info:
+  title: EventHub API
+  description: REST API for EventHub (events, ticketing, payments, refunds, users, sales)
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegister'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate a user and return JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current user (invalidate token)
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logged out
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Users]
+      summary: Create user (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /users/{user_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Users]
+      summary: Get user by id
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Users]
+      summary: Replace user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Users]
+      summary: Delete user (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: User deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user_id}/roles:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [UserRoles]
+      summary: List roles for a user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Roles list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRoleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [UserRoles]
+      summary: Assign role to user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleCreate'
+      responses:
+        '201':
+          description: Role assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /users/{user_id}/roles/{user_role_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: path
+        name: user_role_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags: [UserRoles]
+      summary: Remove role from user
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Role removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events:
+    get:
+      tags: [Events]
+      summary: List events with filters
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: start_from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: start_to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: location
+          schema:
+            type: string
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: min_price
+          schema:
+            type: number
+        - in: query
+          name: max_price
+          schema:
+            type: number
+        - in: query
+          name: published
+          schema:
+            type: boolean
+        - in: query
+          name: organizer_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: sort
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags: [Events]
+      summary: Create a new event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreate'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /events/{event_id}:
+    parameters:
+      - in: path
+        name: event_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Events]
+      summary: Get event by id
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Events]
+      summary: Replace event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventUpdate'
+      responses:
+        '200':
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Events]
+      summary: Partially update event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventUpdate'
+      responses:
+        '200':
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Events]
+      summary: Delete event
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Event deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{event_id}/publish:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      tags: [Events]
+      summary: Publish or unpublish an event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                published:
+                  type: boolean
+              required: [published]
+      responses:
+        '200':
+          description: Publish status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /events/{event_id}/attendees:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      tags: [Events]
+      summary: List attendees / purchasers for an event
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Attendee list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /events/{event_id}/ticket-types:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      tags: [TicketTypes]
+      summary: List ticket types for an event
+      responses:
+        '200':
+          description: Ticket types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketTypeResponse'
+    post:
+      tags: [TicketTypes]
+      summary: Create ticket type for event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketTypeCreate'
+      responses:
+        '201':
+          description: Ticket type created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketTypeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /events/{event_id}/ticket-types/{ticket_type_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/TicketTypeId'
+    get:
+      tags: [TicketTypes]
+      summary: Get ticket type
+      responses:
+        '200':
+          description: Ticket type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketTypeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [TicketTypes]
+      summary: Update ticket type
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketTypeUpdate'
+      responses:
+        '200':
+          description: Updated ticket type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketTypeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags: [TicketTypes]
+      summary: Delete ticket type
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Ticket type deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /events/{event_id}/reservations:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      tags: [Reservations]
+      summary: List reservations for event (organizer/admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reservations list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+    post:
+      tags: [Reservations]
+      summary: Create a ticket reservation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationCreate'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /reservations/{reservation_id}:
+    parameters:
+      - in: path
+        name: reservation_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Reservations]
+      summary: Get reservation by id
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Reservation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Reservations]
+      summary: Update reservation (change seat, cancel)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationUpdate'
+      responses:
+        '200':
+          description: Updated reservation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags: [Reservations]
+      summary: Delete reservation (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Reservation deleted
+
+  /reservations/{reservation_id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/ReservationId'
+    post:
+      tags: [Reservations]
+      summary: Initiate cancellation for reservation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cancellation accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /reservations/{reservation_id}/payments:
+    parameters:
+      - $ref: '#/components/parameters/ReservationId'
+    post:
+      tags: [Payments]
+      summary: Create/attempt payment for a reservation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreate'
+      responses:
+        '201':
+          description: Payment initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '402':
+          description: Payment failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /payments/{payment_id}:
+    parameters:
+      - in: path
+        name: payment_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Payments]
+      summary: Get payment details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Payments]
+      summary: Capture or confirm payment (admin/system)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: capture
+      responses:
+        '200':
+          description: Action applied
+
+  /payments/{payment_id}/refunds:
+    parameters:
+      - $ref: '#/components/parameters/PaymentId'
+    post:
+      tags: [Refunds]
+      summary: Initiate refund for a payment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundCreate'
+      responses:
+        '201':
+          description: Refund requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /refunds/{refund_id}:
+    parameters:
+      - in: path
+        name: refund_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Refunds]
+      summary: Get refund status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Refund info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Refunds]
+      summary: Update refund (admin processing)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: processed
+      responses:
+        '200':
+          description: Refund updated
+
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: List tickets (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: event_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tickets list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+
+  /users/{user_id}/tickets:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Tickets]
+      summary: List tickets for a user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResponse'
+
+  /reservations/{reservation_id}/tickets:
+    parameters:
+      - $ref: '#/components/parameters/ReservationId'
+    post:
+      tags: [Tickets]
+      summary: Issue ticket for reservation (after payment)
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Ticket issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+
+  /events/{event_id}/sales:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      tags: [Sales]
+      summary: Get aggregated sales data for an event
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sales data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesDataResponse'
+    post:
+      tags: [Sales]
+      summary: Trigger recompute of sales metrics (async)
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: Recompute accepted
+
+  /sales:
+    get:
+      tags: [Sales]
+      summary: Global sales report / export (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: start
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: end
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: organizer_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: export
+          schema:
+            type: string
+            enum: [json,csv]
+      responses:
+        '200':
+          description: Sales report
+
+  /admin/events/unpublished:
+    get:
+      tags: [Admin]
+      summary: List unpublished events for review
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Unpublished events list
+
+  /admin/events/{event_id}/approve:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      tags: [Admin]
+      summary: Approve and activate event listing
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Event approved
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TicketTypeId:
+      name: ticket_type_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReservationId:
+      name: reservation_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PaymentId:
+      name: payment_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RefundId:
+      name: refund_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserRoleId:
+      name: user_role_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Validation failed
+
+    AuthRegister:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: newuser@example.com
+        password:
+          type: string
+          example: strongP@ssw0rd
+        full_name:
+          type: string
+          example: New User
+
+    AuthLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: bob@example.com
+        password:
+          type: string
+          example: hash2
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        expires_in:
+          type: integer
+          example: 3600
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    UserCreate:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+        password:
+          type: string
+          example: hash1
+        full_name:
+          type: string
+          example: Alice Smith
+
+    UserUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+        status:
+          type: string
+          enum: [active, deactivated, deleted]
+
+    UserResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        email:
+          type: string
+          example: alice@example.com
+        full_name:
+          type: string
+          example: Alice Smith
+        status:
+          type: string
+          example: active
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-03-01T12:00:00Z
+
+    UserRoleCreate:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          example: organizer
+
+    UserRoleResponse:
+      type: object
+      properties:
+        user_role_id:
+          type: string
+          format: uuid
+          example: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          example: organizer
+        assigned_at:
+          type: string
+          format: date-time
+
+    EventCreate:
+      type: object
+      required: [title, location, start_time, end_time]
+      properties:
+        title:
+          type: string
+          example: Spring Concert
+        description:
+          type: string
+          example: Live music event
+        category:
+          type: string
+          example: music
+        location:
+          type: string
+          example: Budapest
+        start_time:
+          type: string
+          format: date-time
+          example: 2026-03-21T19:00:00Z
+        end_time:
+          type: string
+          format: date-time
+          example: 2026-03-21T21:00:00Z
+        visibility:
+          type: boolean
+          example: true
+        published:
+          type: boolean
+          example: false
+        metadata:
+          type: object
+
+    EventUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        location:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        visibility:
+          type: boolean
+        published:
+          type: boolean
+        metadata:
+          type: object
+
+    EventResponse:
+      type: object
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        organizer_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        location:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        visibility:
+          type: boolean
+        published:
+          type: boolean
+        metadata:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    TicketTypeCreate:
+      type: object
+      required: [name, price, quantity]
+      properties:
+        name:
+          type: string
+          example: VIP
+        price:
+          type: number
+          format: decimal
+          example: 15000
+        quantity:
+          type: integer
+          example: 10
+        metadata:
+          type: object
+
+    TicketTypeUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: decimal
+        quantity:
+          type: integer
+        metadata:
+          type: object
+
+    TicketTypeResponse:
+      type: object
+      properties:
+        ticket_type_id:
+          type: string
+          format: uuid
+        event_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+        metadata:
+          type: object
+
+    ReservationCreate:
+      type: object
+      required: [ticket_type_id]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        ticket_type_id:
+          type: string
+          format: uuid
+        seat:
+          type: string
+          example: A1
+
+    ReservationUpdate:
+      type: object
+      properties:
+        seat:
+          type: string
+        status:
+          type: string
+          enum: [active, expired, cancelled]
+
+    ReservationResponse:
+      type: object
+      properties:
+        reservation_id:
+          type: string
+          format: uuid
+        event_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        ticket_type_id:
+          type: string
+          format: uuid
+        seat:
+          type: string
+        status:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+
+    TicketResponse:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+          format: uuid
+        ticket_type_id:
+          type: string
+          format: uuid
+        reservation_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        seat:
+          type: string
+        status:
+          type: string
+        issued_at:
+          type: string
+          format: date-time
+
+    PaymentCreate:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+          format: decimal
+        method:
+          type: string
+          example: card
+        gateway_data:
+          type: object
+
+    PaymentResponse:
+      type: object
+      properties:
+        payment_id:
+          type: string
+          format: uuid
+        reservation_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        status:
+          type: string
+        method:
+          type: string
+        processed_at:
+          type: string
+          format: date-time
+
+    RefundCreate:
+      type: object
+      required: [amount, reservation_id]
+      properties:
+        reservation_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        reason:
+          type: string
+
+    RefundResponse:
+      type: object
+      properties:
+        refund_id:
+          type: string
+          format: uuid
+        payment_id:
+          type: string
+          format: uuid
+        reservation_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        status:
+          type: string
+        requested_at:
+          type: string
+          format: date-time
+
+    SalesDataResponse:
+      type: object
+      properties:
+        sales_data_id:
+          type: string
+          format: uuid
+        event_id:
+          type: string
+          format: uuid
+        total_tickets_sold:
+          type: integer
+          example: 42
+        total_revenue:
+          type: number
+          example: 420000.00
+        last_updated:
+          type: string
+          format: date-time

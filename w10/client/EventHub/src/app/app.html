@@ -1,0 +1,17 @@
+<app-navbar></app-navbar>
+
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Toast container -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts" class="toast" [ngClass]="t.type">
+    <div class="toast-message">{{ t.message }}</div>
+    <button class="toast-close" (click)="removeToast(t.id)">✕</button>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <small>© EventHub</small>
+</footer>

@@ -1,0 +1,122 @@
+/* Design tokens for EventHub
+   - Exposes runtime CSS custom properties (prefixed with --sys-)
+   - Also provides SCSS maps and mixins for compile-time usage
+*/
+
+/* Color palette (base values) */
+$color-palette: (
+  primary: #2980b9,
+  primary-variant: #1f6aa1,
+  secondary: #FF41F8,
+  accent: #7702FF,
+  success: #2ecc71,
+  warning: #f39c12,
+  danger: #e74c3c,
+  surface: #ffffff,
+  background: #f7f7f7,
+  text: #2c3e50,
+  muted: #7f8c8d
+);
+
+/* Typography scale */
+$typography: (
+  family: 'Inter, Roboto, Arial, sans-serif',
+  size-xs: 12px,
+  size-sm: 14px,
+  size-md: 16px,
+  size-lg: 20px,
+  size-xl: 28px,
+  line-height: 1.5
+);
+
+/* Spacing scale */
+$spacing: (
+  0: 0,
+  1: 4px,
+  2: 8px,
+  3: 12px,
+  4: 16px,
+  5: 24px,
+  6: 32px
+);
+
+/* Radii, shadows and z-index */
+$radii: (
+  sm: 4px,
+  md: 8px,
+  lg: 16px
+);
+
+$shadows: (
+  sm: 0 1px 3px rgba(0,0,0,0.06),
+  md: 0 4px 12px rgba(0,0,0,0.08)
+);
+
+/* Helper functions */
+@function token($map, $key) {
+  @return map-get($map, $key);
+}
+
+/* Export runtime CSS variables */
+:root {
+  /* Colors */
+  --sys-color-primary: #{map-get($color-palette, primary)};
+  --sys-color-primary-variant: #{map-get($color-palette, primary-variant)};
+  --sys-color-secondary: #{map-get($color-palette, secondary)};
+  --sys-color-accent: #{map-get($color-palette, accent)};
+  --sys-color-success: #{map-get($color-palette, success)};
+  --sys-color-warning: #{map-get($color-palette, warning)};
+  --sys-color-danger: #{map-get($color-palette, danger)};
+  --sys-color-surface: #{map-get($color-palette, surface)};
+  --sys-color-background: #{map-get($color-palette, background)};
+  --sys-color-text: #{map-get($color-palette, text)};
+  --sys-color-muted: #{map-get($color-palette, muted)};
+
+  /* Typography */
+  --sys-font-family: #{map-get($typography, family)};
+  --sys-font-size-xs: #{map-get($typography, size-xs)};
+  --sys-font-size-sm: #{map-get($typography, size-sm)};
+  --sys-font-size-md: #{map-get($typography, size-md)};
+  --sys-font-size-lg: #{map-get($typography, size-lg)};
+  --sys-font-size-xl: #{map-get($typography, size-xl)};
+  --sys-line-height: #{map-get($typography, line-height)};
+
+  /* Spacing */
+  --sys-space-0: #{map-get($spacing, 0)};
+  --sys-space-1: #{map-get($spacing, 1)};
+  --sys-space-2: #{map-get($spacing, 2)};
+  --sys-space-3: #{map-get($spacing, 3)};
+  --sys-space-4: #{map-get($spacing, 4)};
+  --sys-space-5: #{map-get($spacing, 5)};
+  --sys-space-6: #{map-get($spacing, 6)};
+
+  /* Radii */
+  --sys-radius-sm: #{map-get($radii, sm)};
+  --sys-radius-md: #{map-get($radii, md)};
+  --sys-radius-lg: #{map-get($radii, lg)};
+
+  /* Shadows (as raw values) */
+  --sys-shadow-sm: #{map-get($shadows, sm)};
+  --sys-shadow-md: #{map-get($shadows, md)};
+
+  /* Misc */
+  --sys-z-modal: 1000;
+}
+
+/* Dark theme variables (toggle by adding .theme-dark to body) */
+body.theme-dark {
+  --sys-color-surface: #0f1720;
+  --sys-color-background: #0b0f13;
+  --sys-color-text: #e6eef6;
+  --sys-color-muted: #9aa6b2;
+}
+
+/* Utility mixins that read from tokens */
+@mixin font-size($size) {
+  font-size: var(--sys-font-size-#{$size});
+  line-height: var(--sys-line-height);
+}
+
+@mixin space($n) {
+  margin: var(--sys-space-#{$n});
+}
